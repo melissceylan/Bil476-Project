@@ -1,0 +1,28 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1563354476544.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "186353785",
+    "id" : "E2D83CB9",
+    "lastKnownWriteTime" : 1563364365,
+    "last_content_update" : 1563364365471,
+    "path" : "~/TwitterProject/twitterr.R",
+    "project_path" : "twitterr.R",
+    "properties" : {
+        "cursorPosition" : "57,1",
+        "docOutlineSize" : "110",
+        "docOutlineVisible" : "0",
+        "scrollLine" : "28",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

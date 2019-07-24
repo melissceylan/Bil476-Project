@@ -1,0 +1,9 @@
+{
+    "path" : "~/TwitterProject",
+    "sortOrder" : [
+        {
+            "ascending" : true,
+            "columnIndex" : 2
+        }
+    ]
+}
