@@ -1,10 +1,11 @@
-
 library(twitteR)
 library(ROAuth)
 library(tm)
 library(RCurl)
 library(plyr)
 library(ggplot2)
+library(tidyverse)
+library(lubridate)
 
 options(RCurlOptions = list(cainfo = system.file("CurlSSL", "cacert.pem", package = "RCurl")))
 
@@ -15,41 +16,80 @@ access_token_secret <- "9wlEouNiU8AVuOPelUei9PkOALXWswnUCbsbD1QMdZ0et"
 
 setup_twitter_oauth(api_key,api_secret,access_token,access_token_secret)
 
+
 ##hashtagden veri çekme
-library(tidyverse)
+
+
 availableTrendLocations() %>% filter(country == "Turkey")
 h <- getTrends(2343732)
 head(h,20)
-tw <- searchTwitter("#yks2019", n=2000)
+view(h)
 
-class(tw)
-str(tw)
+tw <- searchTwitter("#yks2019", n=2000)
+tw_m <- searchTwitter("#yks2019", n=300)
 df_tw <- twListToDF(tw)
+tw_min <- twListToDF(tw_m)
+View(tw_min)
 View(df_tw)
 
+
 #Appending some more words to actual words
-pos.words2 = c('g�zel','makam', 'iyi','olumlu','ba�ar�')
-neg.words2 = c( 'asla', 'olmaz','k�t�', 'olumsuz')
 
-df$text
-#converting Into dataFrame
-#calcuating result
-result <- score.sentiment(df$text,pos.words2,neg.words2)
-result
-#summarlizing data
-summary(result$score)
 
-#Histogram
-hist(result$score,col="yellow", main="Score of tweets",ylab=" Count of tweets")
+pos.words2 = c('başarılar','yerleştim','güzel','Güzel','#buralarseninlegüzel','#BuralarSeninleGüzel','gelirse','iyi')
+neg.words2 = c('usulsüzlük','kötü','zor','keşke','keske','stresi','stresidir','stresinin','stresin','stres')
 
-#Count No of Tweets
-count(result$score)
+#n
+#Hashtag ile Duygu Analizi
+
+
+bscore <- score.sentiment(df_tw$text,pos.words2,neg.words2,.progress="text")
+mscore <- score.sentiment(tw_min$text,pos.words2,neg.words2,.progress="text")
+View(bscore)
+view(mscore)
+hist(bscore$score,col="purple", 
+     main="#yks2019 Hashtag",
+     ylab=" Count of tweets",
+     xlab="Sentiment")
+hist(mscore$score,col="blue", 
+     main="#yks2019 Hashtag_s", 
+     ylab = "Count of Tweets", 
+     xlab = "Sentiment")
+
+#profilden duygu analizi
+
+
+df_hl <- userTimeline('haluklevent', n = 1000)
+hl <- userTimeline('haluklevent', n = 300)
+df <- twListToDF(df_hl)
+hl_s <- twListToDF(hl)
+View(df)
+view(hl_s)
+
+pos.words3 = c('hayırsever','teşekkür','teşekkürü','teşekkürler','Teşekkür','Teşekkürler','harikasın','harikasınız','sağol','sağolun','sağolasın','sağolsun', 'Sağol','Sağolun','Sağolasın','Sağolsun')
+neg.words3 = c('tepki','kahroldum','Kahroldum','donör','hastalık','Hastalık','hastası','hastanesinin','hastaneye','hastane','hastalığı','hasta','Hasta','acı','Acıların','acılarını','acıtan','acılı','malesef','Maalesef')
+
+p_score <- score.sentiment(df$text,pos.words3,neg.words3,.progress = "text")
+hscore <- score.sentiment(hl_s$text,pos.words3,neg.words3,.progress = "text")
+View(p_score)
+
+hist(p_score$score, 
+     col="purple", 
+     main="Haluk Levent Profile",
+     ylab="Frequency",
+     xlab="Sentiment")
+hist(hscore$score, 
+     col="blue", 
+     main = "Haluk Levent Profile", 
+     ylab = "Frequency",
+     xlab="Sentiment")
 
 #ploting the tweets on qplot
-qplot(result$score,xlab = "Score of tweets")
 
 #score Sentiment function
 #Used to remove all unwanted data 
+
+
 score.sentiment = function(sentences, pos.words, neg.words, .progress='none')
 {
   require(plyr)
@@ -74,36 +114,58 @@ score.sentiment = function(sentences, pos.words, neg.words, .progress='none')
 }
 
 
-plot(cars)
+
+# Profil hakkında duygu analizi
 
 
-##profilden veri çekme
-df_user <- userTimeline('melis_ceylann', n = 100)
-df <- twListToDF(df_user)
-View(df)
+b <- searchTwitter("@haberturk", n=1000)
+b_sml <- searchTwitter("@haberturk", n=300)
+db <- twListToDF(b)
+b_smlL <- twListToDF(b_sml)
 
-##Profil temel bilgilerine erişim
-mls <- getUser("melis_ceylann")
-attributes(mls)
-str(mls)
-mls$name
-mls$statusesCount
-mls$profileImageUrl
-download.file("http://pbs.twimg.com/profile_images/1073926902463762432/laojx3mg_normal.jpg",destfile = "pl.jpg")
-mls$getFavorites(n=10)
-mls$getFriends(n=10)
+View(db)
 
-cmylmz <- getUser("CMYLMZ")
-cmylmz$friendsCount
-cmylmz$location
+pos.words4 = c('güzel','Güzel','iyi','iyiyim','iyiye','"sevgi"','sevgili','Sevgili','tebrik','Tebrik','Tebrikler','teşekkür','mutlu')
+neg.words4 = c('işsizliğin','yalan','savaş','işsiz','olumsuz','terörist','Terörist','Teröristler','yolsuzluk','YOLSUZLARI','YOLSUZLUK','şehit', 'kötü','cinayete','krizi')
 
-mls$getFollowers(n=10)
-mls$getFollowerIDs(n=100)
+p1_score <- score.sentiment(db$text,pos.words4,neg.words4,.progress = "text")
+bs_score <- score.sentiment(b_smlL$text,pos.words4,neg.words4,.progress = "text")
+View(p1_score)
+view(bs_score)
 
-mls$lastStatus$favoriteCount
-mls$lastStatus$statusSource
-mls$lastStatus$text
+hist(p1_score$score, 
+     col="purple", 
+     main="Habertürk Profile",
+     ylab="Frequency",
+     xlab="Sentiment")
+hist(bs_score$score, 
+     col="blue", 
+     main = "Habertürk Profile",
+     ylab = "Frequency", 
+     xlab = "Sentiment")
 
 
-##Profilin Enleri
- 
+## Kullanim Saatleri Dagilimi
+
+
+fp_tw <- userTimeline('fatihportakal', n = 2000)
+fp <- twListToDF(df_user)
+
+fptw_s <- userTimeline('fatihportakal', n = 300)
+fptw <- twListToDF(fptw_s)
+
+hist(hour(fp$created), col = "purple", 
+     xlab = "Saat Araligi", 
+     ylab = "Tweet Sayisi",
+     xlim = c(0,25))
+
+hist(hour(fptw$created), col = "blue",
+     xlab = "Saat Aralığı",
+     ylab = "Tweet Sayısı",
+     xlim = c(0,25))
+
+gunisim <- wday(fp$created, label = TRUE)
+fptw_gun <- wday(fptw$created, label = TRUE)
+
+ggplot(fp, aes(gunisim)) + geom_bar()
+ggplot(fptw, aes(fptw_gun)) + geom_bar()
